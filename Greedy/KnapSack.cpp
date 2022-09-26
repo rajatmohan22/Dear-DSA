@@ -1,51 +1,68 @@
 #include <iostream>
 #include <bits/stdc++.h>
+#include <limits.h>
+#define M 8
 using namespace std;
 
-vector<float> knapSack(vector<float> &profit, vector<float> &weight,int capacity){
-    int size = profit.size();
-    vector<float> PbyW,PbyW2,ans;
-    map<float,int> map;
+int MAX(int a,int b){
+    if(a>=b) return a;
+    return b;
+}
 
-    if(profit.size()!=weight.size()) return {-1};
 
-    for(int i=0;i<size;i++){
-        PbyW.push_back(profit[i]/weight[i]);
-        map[PbyW[i]]=i;
-    }
 
-    PbyW2=PbyW;
-    sort(PbyW2.begin(),PbyW2.end(),greater<int>()); /// sort in descending order
-    for(int i=0;i<size;i++) cout<<PbyW2[i]<<" "<<weight[map[PbyW2[i]]]<<endl;
-    int capacity2 = capacity;
-    int i=0;
+int makeTable(vector<int> profit,vector<int> weight,int n,int m){
 
-    for(int i=0;i<size;i++){
-        cout<<capacity2<<" - "<<weight[(map[PbyW2[i]])]<<" "<<PbyW2[i]<<endl;
-        if(!capacity2) break;
-        if(capacity2>weight[map[PbyW2[i]]]){
-            capacity2-=(float)weight[(map[PbyW2[i]])];
-            ans.push_back(1);
-        } else{
-            ans.push_back((float)(capacity2/weight[(map[PbyW2[i]])]));
-            capacity2=0;
+    if(profit.size()!=weight.size()) return {};
+    ///now that we are sure profit and weight have the same size, we can move forward.
+    int Table[n+1][m+1];
+
+    for(int i=0;i<=n;i++){
+        for(int j=0;j<=m;j++){
+            if(i==0||j==0) Table[i][j]=0;
+            else{
+                if(j>=weight[i]){
+                    Table[i][j]=MAX(Table[i-1][j],(Table[i-1][j-weight[i]]+profit[i]));
+                } else{
+                    Table[i][j]=Table[i-1][j];
+                }
+
+            }
         }
     }
+    for(int i=0;i<=n;i++){
+        for(int j=0;j<=m;j++){
+            cout<<Table[i][j]<<"-";
+        }
+        cout<<endl;
+    }
 
-    // for(auto x: ans) cout<<x<<endl;
-    return {};
+    // return Table[n][m];
+
+    int i=n,j=m,now=Table[n][m];
+    vector<int> ans;
+    while(i>0){
+        if(Table[i][j]==Table[i-1][j]){
+            ans.push_back(0);
+            i--;
+        } else {
+            ans.push_back(1);
+            j-=weight[i]; 
+            i--;
+        }
+
+    }
+
+    for(int i=0;i<=n;i++){
+        cout<<ans[i];
+    }
 }
 
 int main(){
 
-    vector<float> profit{10,5,15,7,6,18,3},weight{2,3,5,7,1,4,1},ans;
-    knapSack(profit,weight,15);
+    vector<int> Profit{0,1,2,5,6};
+    vector<int> Weight{0,2,3,4,5};
 
-    // for(auto x: ans){
-    //     cout<<x<<endl;
-    // }
-
-    
-
-
+    cout<<(makeTable(Profit,Weight,4,8));
+    return 0;
 }
